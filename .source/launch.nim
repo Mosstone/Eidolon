@@ -13,6 +13,8 @@ var loc = getAppDir()
 var arg = " "
 if paramCount() > 0:
     arg = paramStr(1)
+    if arg in ["--shell", "--verbose"]:
+        arg = ":"
 
 
 
@@ -101,8 +103,8 @@ proc launch() =
         echo    "[90m" & getTime().format("HH:mm:ss") & " ... start singularity [0m"
 
     echo   "[94m"                                                               # this injects arguments into the interactive shell
-    if     interactive:  discard execCmd("singularity exec " & loc & sin & " bash --rcfile <(echo \'source /etc/profile && " & arg & "\') -i")
-    if not interactive:  discard execCmd("singularity exec " & loc & sin & " bash -lc \"" & arg & "\"")
+    if     interactive:  discard execCmd("singularity exec --writable " & loc & sin & " bash --rcfile <(echo \'source /etc/profile && " & arg & "\') -i")
+    if not interactive:  discard execCmd("singularity exec --writable " & loc & sin & " bash -lc \"" & arg & "\"")
     echo   "[0m"
 
 
