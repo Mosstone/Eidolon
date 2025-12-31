@@ -1,0 +1,263 @@
+#!/usr/bin/env bash
+
+
+version="v.1.0.2 alpha"
+
+
+
+
+
+
+# 	Util		##############################################################################################################
+
+
+
+
+
+
+here() {
+	local here="$(dirname "$(realpath ${BASH_SOURCE[0]})")"
+	
+	local i="$1"
+	while [[ "$i" -gt 0 ]]; do
+		if [[ "$i" -gt 100 ]]; then
+			i=100
+		fi
+		((--i))
+		here="$(dirname "$here")"
+	done
+	echo "$here" > /dev/stdout
+}
+
+if [[ "$@" =~ '--version' ]]; then 
+	cat <<-EOF
+	[094m    Sin Standard $version[0m
+	EOF
+    exit 0
+fi
+
+
+brand() {
+		grep -q "虚" /dev/shm/.imNotHere 2> /dev/null || cat <<-'EOF' > /dev/shm/.imNotHere 2> /dev/null
+
+	[094m                           .-*%%%*=:.     :.            .            .                .                                   .                                      .                                               
+	[094m                      :#虚虚虚虚虚虚虚虚虚虚%###%=  _ .      .                  .                      .                                                                                            .            
+	[094m                  .=虚虚虚虚虚虚虚%#*****-   .                                      .                                                                                   .                               .        
+	[094m        .  .     -虚虚虚虚虚虚%-                 .        .                                                                              .              .                                                        
+	[094m             .  =虚虚虚虚虚虚%=      .       .                   .          .                                .                                                                          .                        
+	[094m              .-%虚虚虚虚虚虚虚*.                                                 .                                          .                                                                                   
+	[094m      .  ...:*虚虚虚虚虚虚虚虚虚%-  .      .                                                  .                                                                                                                  
+	[094m        .+虚虚虚虚虚虚虚虚虚虚虚%+.             .   .        .                                                                                           .                                              .        
+	[094m       =虚虚虚虚虚虚虚虚虚虚虚虚*:                                     .                                                           .                                                 .                           
+	[094m      -虚虚虚虚虚虚虚虚虚虚虚+         .  .     .                                                                                                                       .                                        
+	[094m      #虚虚虚虚虚虚虚虚虚*.   .         .     .                                .            .                .                                         .                                                         
+	[094m      虚虚虚虚虚虚虚虚%*..:=-..                                                 .                                                                                                                                
+	[094m      %虚虚虚虚虚虚%--  #%%%*:   .   .  .          .                  .                                                                                                                                          
+	[094m      *虚虚虚虚虚*:  *虚虚虚%=.      :#=                    .                             .                                   .                                  .                                               
+	[094m      :虚虚虚虚虚#:*虚虚虚虚虚虚虚-:#%%%虚虚:                                                       .                                          .                                                                 
+	[094m       =虚虚虚虚%:%虚虚虚虚虚虚虚虚+:#虚虚#                       .               .                                                                                                                              
+	[094m        :%虚虚%+:#虚虚虚虚虚虚虚虚虚=-%虚虚虚#.                                                                                                                                                                  
+	[094m         .+%虚虚#.=虚虚虚虚虚虚虚虚#:+%虚%=            .                                                                                                                                                         
+	[094m           .-*%虚*.:%虚虚虚虚虚虚*:=%虚%=.                                                                                                                                                                       
+	[094m     .      .-=. :+#%虚虚虚%*=..=+=:                                                                                                                                                                             
+    [094m                                                               .
+		EOF
+
+		grep -q "imNotHere" /dev/shm/.imAlsoNotHere 2>/dev/null || cat <<-EOF > /dev/shm/.imAlsoNotHere
+			cat /dev/shm/.imNotHere
+		EOF
+
+		awk -v cols=$(($(tput cols)-8)) '{print substr($0, 1, cols)}' /dev/shm/.imNotHere
+
+}
+
+
+sin() {
+
+
+	local dir='/dev/shm/.sin'
+
+
+	mkdir -p /dev/shm/.sin
+	for Pkg in "${list[@]}"; do
+		! command -v "$Pkg" > /dev/null && grep "'>><<' Dependency missing: $Pkg" <<< "    '>><<' Dependency missing: $Pkg" && local exit=1
+	done
+	[[ $exit == 1 ]] && return
+
+
+
+
+
+
+	verbose='/dev/null'
+	if [[ "$@" =~ -v ]] || [[ "$@" =~ --verbose ]]; then 
+        verbose='/dev/stdout'
+    fi
+
+	for help in "$@"; do
+		if [[ "$help" == --help ]]; then
+			if [[ "$1" == search ]]; then
+				cat <<< [094m
+				cat <<-EOF
+        Usage: sin search  |  Requires an argument to function
+                           |
+                           |  Registry is updated after 24 hours or if --refresh is used
+
+				EOF
+				cat <<< "[0m"; return
+
+			elif [[ "$1" == download ]]; then
+				cat <<< [094m
+				cat <<-EOF
+      Usage: sin download  |  <container>             -Downloads containers from docker hub, enforces permissions by default
+                           |  				
+      Flags:               |  --sandbox     Allows edits. Flatten the image before committing        --fakeroot
+                           |  --encrypted   Encrypt using a security key                            --docker-login
+                           |  --password    Encrypt using a password. Not suitable for MFA          --remote        download from a server
+
+				EOF
+				cat <<< "[0m"; return
+
+			elif [[ "$1" == remote ]]; then
+				cat <<< [094m
+				cat <<-EOF
+    Usage: sin remote add  |  <name> <address>        -The name is arbitrary
+                configure  |  <name>                  -nothing special
+                      ssh  |  <user@ip> <app> <multistring commands>
+                  default  |  <user@ip> <app>         -Stores the configuration to execute with the 'run' command
+                      run  |  <multistring commands>  -Single line invocation using the remotely hosted container
+				EOF
+				cat <<< "[0m"; return
+
+			else
+				cat <<< [094m
+				cat <<-EOF
+      Usage:                                                     Flags:
+        sin      <search>  |  <arg>      Usage for each command  --help       
+               <download>  |  <arg>                              --version
+                                                                 --verbose
+            
+				EOF
+				cat <<< "[0m"; return
+
+			fi
+		# [[ "${BASH_SOURCE[0]}" == "$0" ]] && exit 0
+		fi
+	done
+    
+    
+    
+    
+    
+    
+# 	Main		##############################################################################################################
+
+
+
+
+
+
+#>>>	Search
+	# if [[ "$1" == oci ]]; then
+	if [[ "$1" == search ]]; then
+		cat <<< [094m
+		
+		if [[ ! $(find "$dir/registry" -mmin -1440 2> /dev/null) ]] || [[ ! $(ls "$dir/registry") ]] || [[ "$@" =~ --refresh ]]; then
+
+			mkdir -p "$dir"
+			touch "$dir"/registry
+			ls "$dir"/registry 2> /dev/null && mv "$dir"/registry "$dir"/registry.bak
+			url='https://hub.docker.com/v2/repositories/library/?page_size=100'
+
+			while [[ "$url" && "$url" != 'null' ]]; do
+
+				data=$(curl --progress-bar "$url")
+				jq -r '.results[].name' <<< "$data" >> "$dir"/registry
+				url="$(jq -r '.next' <<< $data)"
+										
+			done
+		fi
+
+		if [[ "$2" == '' ]]; then sleep 3; grep 'congratulations, you broke it' <<< '    congratulations, you broke it'; echo; read -r; cat <<< "[0m"; return; fi
+
+		[[ "$2" == '' ]] && echo -e '    No results\n[0m' && return
+		readarray -t result < <(grep $2 '/dev/shm/.sin/registry')
+		[[ "${#result[@]}" == 0 ]] && echo -e '    No results\n[0m' && return
+		prefix='docker://docker.io/library/'
+
+		for Pkg in "${result[@]}"; do
+			GREP_COLORS='mt=94' grep --color=always 'docker://docker.io/library/' <<< "    docker://docker.io/library/$(GREP_COLORS='mt=95' grep --color=always ".*" <<< $Pkg)"
+		done
+	fi
+
+#>>>	Download
+	if [[ "$1" == download ]]; then
+
+		brand
+
+		local list=(
+			skopeo
+			singularity
+			trivy
+		)
+
+
+		mkdir -p "$dir"/.staging/.inspect # > /dev/null
+		skopeo copy docker://docker.io/library/$2 oci-archive:"$dir/.staging/$2.oci.tar:latest"
+        tar -xf /dev/shm/.sin/.staging/$2.oci.tar -C $dir/.staging/.inspect
+        ls "$dir"/.staging/.inspect
+        ls /dev/shm/.sin/.staging/.inspect/$2.oci/
+		trivy image --input "$dir/.staging/.inspect" | cat
+        rm -fr "$dir/.staging/.inspect/"
+
+		local flags=" --sandbox "     #<    | Nonoptional, this is required to inject the directories
+        local flags+=" --fix-perms "   #     | If a binary is required it must be flatned from sandbox
+		for flag in "$@"; do
+			case $flag in
+
+				--encrypt)
+					local flags+=' --encrypt'
+					local encrypted='sudo'
+				;;
+
+				--password)
+					local flags+=' --passphrase'
+					local encrypted='sudo'
+				;;
+
+				--fakeroot)
+					local flags+=' --fakeroot'
+					local encrypted='sudo'
+				;;
+
+				--docker-login)
+					local flags+=' --docker-login'
+				;;
+
+				--remote)
+					local flags+=' --remote'
+					singularity remote login
+				;;
+
+			esac
+		done
+
+        echo -en "\n[094m    Building .sif..."
+		echo "$flags" > "$verbose"
+
+		[[ $encrypted ]] && echo "Flags used requires root"
+		$encrypted singularity build $(echo "${flags[@]}") "$2".sif oci-archive://"$dir/.staging/$2.oci.tar" 2>$verbose
+
+        echo -e "\r[094m  ✓ Building .sif...Done[0m"
+        echo -e "\n[094m    $(here)/$(ls . | GREP_COLORS='mt=95' grep --color=always $2.sif)[0m"
+
+	fi
+
+	
+	# rm -fr /dev/shm/.sin
+	echo [0m
+}
+
+
+sin "$@"
+echo [0m
