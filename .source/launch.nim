@@ -1,20 +1,33 @@
 import os
 import osproc
 import times
+import strutils
 
 
 var name = "Eidolon"
 var version = "v0.0.1"
 var verbosity = false
 var interactive = false
+var download = false
 var sin = "/.engine/Eidolon"
 var loc = getAppDir()
 
-var arg = " "
+var command = ""
 if paramCount() > 0:
-    arg = paramStr(1)
-    if arg in ["--shell", "--verbose"]:
-        arg = ":"
+
+    if paramStr(1) in ["--shell", "--verbose"]:
+        command = ":"       #   if the command arg is a flag, turn it into a passe
+
+
+if paramStr(1) == "sin":
+    download = true
+    let p = commandLineParams()
+    command = p[1..^1].join(" ")
+else:
+    command = paramStr(1)
+
+echo "command is " & command
+
 
 
 
@@ -29,6 +42,8 @@ proc printhelp() =
 
 
         Usage:
+            Pass 'Eidolon' with nothing added
+            
             Passing the Eidolon command by itself launches the preconfigured architecture and
             runs the framework in a new window. Using arguments alongside allows you to alter
             the singularity environment
@@ -39,6 +54,12 @@ proc printhelp() =
             you can start interacting with the terminal
 
             Eidolon "[095m<commands>[094m" <flags>
+
+            A utility was added to Eidolon for pulling docker images in a sif format. However
+            this is for utility; the Eidolon system expects the particular image built for it
+
+            Eidolon sin search arch
+            Eidolon sin download archlinux
 
             Flags:
                 --verbose       |   Prints additional information
@@ -74,7 +95,7 @@ proc arguments() =
             else:
                 discard
     
-    if verbosity: echo "[90m" & getTime().format("HH:mm:ss") & " ... command passed: " & arg & " [0m"
+    if verbosity: echo "[90m" & getTime().format("HH:mm:ss") & " ... command passed: " & command & " [0m"
 
 
 
@@ -89,12 +110,35 @@ proc arguments() =
 
 
 proc depCheck(): bool =
+    if verbosity: echo "[90m" & getTime().format("HH:mm:ss") & " ... checking dependencies [0m"
+    
+    var exit = false
+
+
     if findExe("singularity").len == 0:
-        if verbosity: echo "[90m" & getTime().format("HH:mm:ss") & " ... checking dependencies [0m"
         echo "\n    [94mEidolon requires [35mApptainer[94m to be installed[0m\n"
+        exit = true
+
+
+    if download:
+        if findExe("skopeo").len == 0:
+            echo "\n    [94mDownloader requires [35mSkopeo[94m to be installed[0m\n"
+            exit = true
+
+        if findExe("trivy").len == 0:
+            echo "\n    [94mDownloader requires [35mTrivy[94m to be installed[0m\n"
+            exit = true
+
+
+    if exit == true:
         return false
     else:
         return true
+
+
+proc pull() =
+
+    discard execCmd(loc & "/.assets/Sin " & command)
 
 
 proc launch() =
@@ -103,8 +147,8 @@ proc launch() =
         echo    "[90m" & getTime().format("HH:mm:ss") & " ... start singularity [0m"
 
     echo   "[94m"                                                               # this injects arguments into the interactive shell
-    if     interactive:  discard execCmd("singularity exec --writable " & loc & sin & " bash --rcfile <(echo \'source /etc/profile && " & arg & "\') -i")
-    if not interactive:  discard execCmd("singularity exec --writable " & loc & sin & " bash -lc \"" & arg & "\"")
+    if     interactive:  discard execCmd("singularity exec --writable " & loc & sin & " bash --rcfile <(echo \'source /etc/profile && " & command & "\') -i")
+    if not interactive:  discard execCmd("singularity exec --writable " & loc & sin & " bash -lc \"" & command & "\"")
     echo   "[0m"
 
 
@@ -120,7 +164,14 @@ proc main() =
 
 
     if depCheck():
-        launch()
+        if download == true:
+            echo "download true"
+            pull()
+        else:
+            echo "download false"
+            launch()
+
+
         if verbosity: echo "[90m" & getTime().format("HH:mm:ss") & " ... entrypoint closed [0m"
         quit(1)
     else:
