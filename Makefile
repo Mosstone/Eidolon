@@ -12,12 +12,13 @@ SYSCONFDIR:= $(DIRECT)/etc
 DATADIR   := $(DIRECT)/share
 MANDIR    := $(DATADIR)/man
 
-EXECDIR     := launch
+EXECDIR     := config
+SRCCDIR     := prompt
 TARBALL     := null # tarball.tar.gz
 DISTDIR     := Application
-COMMAND     := Eidolon
+COMMAND     := shade
 
-.PHONY: all unpack link run clean
+.PHONY: all unpack link run uninstall
 
 all: run
 
@@ -46,12 +47,16 @@ unpack:
 
 link: unpack
 
+	@chmod +x $(EXECDIR)
+	@chmod +x $(SRCCDIR)
 	@mkdir -p $(PREFIX)/bin/
 	@ln -sf $(CURDIR)/$(EXECDIR) $(PREFIX)/bin/$(COMMAND)
+	@grep -qxF 'source ~/shade/prompt' ~/.bashrc || echo -e '\n# >>> Shade Initialize >>>\n\n# !! Contents within this block are managed by Shade !!\n\n#   Modifies the PS1 with output from Shade\n#   https://github.com/Mosstone/Shade\n\nsource ~/shade/prompt\n\n# <<< Shade Initialize <<<\n' >> ~/.bashrc
 
 run: link
 
-	./$(EXECDIR) --version
+	$(COMMAND) --version
 
-clean:
+uninstall:
+	@sed -i '/# >>> Shade Initialize >>>/,/# <<< Shade Initialize <<</d' ~/.bashrc && echo "Removed from ~/.bashrc" || echo "Not found in ~/.bashrc"
 	rm $(PREFIX)/bin/$(COMMAND)
